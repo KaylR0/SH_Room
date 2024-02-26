@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
 import com.kaylr.sh_room.databinding.ActivityHeroBinding
+import com.kaylr.sh_room.db.HeroEntity
 import com.kaylr.sh_room.db.SHDB
 import com.kaylr.sh_room.db.toDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -45,42 +46,32 @@ class HeroActivity : AppCompatActivity() {
     }
 
     private fun initUI() {
-      /*  binding.searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener
+        binding.searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener
         {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 searchByName(query.orEmpty())
                 return false
             }
             override fun onQueryTextChange(newText: String?) = false
-        })*/
+        })
         adapter = HeroAdapter{superheroId -> navigateToDetail(superheroId)}
         binding.rvSuperHero.setHasFixedSize(true)
         binding.rvSuperHero.layoutManager = LinearLayoutManager(this)
         binding.rvSuperHero.adapter = adapter
     }
 
-    private fun searchByName(query: String) {//query: String
+    private fun searchByName(query: String) {
         binding.progressBar.isVisible = true
-
         //.IO es para hilos secundarios
         //.MAIN es para el hilo principal
         CoroutineScope(Dispatchers.IO).launch {
-            //usamos corrutinas para que use otro hilo y que no se atasque el programa principal
-            val myResponse: Response<HeroDataResponse> =
-                retrofit.create(ApiService::class.java).getSuperheroes()//(query)
-            if (myResponse.isSuccessful) {
-                Log.i("Consulta", "Funciona :)")
-                val response: HeroDataResponse? = myResponse.body()
-                if (response != null) {
-                    Log.i("Cuerpo de la consulta", response.toString())
-                    runOnUiThread {
-                        //adapter.updateList(response.superheroes)
-                        //binding.progressBar.isVisible = false
-                    }
-                }
-            } else {
-                Log.i("Consulta", "No funciona :(")
-            }
+        //usamos corrutinas para que use otro hilo y que no se atasque el programa principal
+        val data: List<HeroEntity> = room.getHeroDao().getSuperheroes(query)
+        runOnUiThread{
+            adapter.updateList(data)
+            binding.progressBar.isVisible = false
+
+        }
         }
     }
     private fun fillDatabase() {
@@ -105,14 +96,6 @@ class HeroActivity : AppCompatActivity() {
                             if(roomHero.isNotEmpty()){
                                 if (roomHero[0].idApi == s.idApi) {
                                     room.getHeroDao().update(s)
-                                    //room.getHeroDao().deleteAllSuperheroes()
-                                    //room.getHeroDao().update(list)
-                                    // if (room.getHeroDao().getAllSuperheroes().isEmpty()) {
-                                    /* val heroes = room.getHeroDao().getAllSuperheroes()
-                                for (i in heroes.indices) {
-                                    println(heroes[i])
-                                }
-                                Log.i("BASE DE DATOS", room.getHeroDao().getSuperheroes(1).toString())*/
                                 } else {
                                     room.getHeroDao().insert(s)
                                 }
@@ -122,13 +105,12 @@ class HeroActivity : AppCompatActivity() {
                         //si no encuentra heroes inserta toda la info
                         room.getHeroDao().insertAll(list)
                     }
-                    adapter.updateList(room.getHeroDao().getAllSuperheroes())
-                    runOnUiThread{
-                        binding.progressBar.isVisible = false
-                    }
                 }
             } else {
                 Log.i("Consulta", "No funciona :(")
+            }
+            runOnUiThread{
+                binding.progressBar.isVisible = false
             }
         }
     }
