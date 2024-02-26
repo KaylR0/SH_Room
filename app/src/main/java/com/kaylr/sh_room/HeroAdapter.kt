@@ -9,7 +9,7 @@ class HeroAdapter( private var superheroList: List<HeroEntity> = emptyList(), pr
     : RecyclerView.Adapter<HeroViewHolder>() {
     fun updateList(list: List<HeroEntity>) {
         this.superheroList = list
-        //notifyDataSetChanged()
+        notifyDataSetChanged()
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HeroViewHolder {
         return HeroViewHolder(
