@@ -14,6 +14,9 @@ interface HeroDao {
     @Query("SELECT * FROM hero_table WHERE name LIKE '%'||:query||'%'")
     suspend fun getSuperheroes(query:String):List<HeroEntity>
 
+    @Query("SELECT * FROM hero_table WHERE idApi LIKE :query")
+    suspend fun getSuperheroeByApiID(query:String):List<HeroEntity>
+
     @Query("SELECT * FROM hero_table WHERE idApi LIKE :id")
     suspend fun getSuperheroes(id:Int):HeroEntity
 

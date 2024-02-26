@@ -66,12 +66,12 @@ class HeroActivity : AppCompatActivity() {
         //.MAIN es para el hilo principal
         CoroutineScope(Dispatchers.IO).launch {
         //usamos corrutinas para que use otro hilo y que no se atasque el programa principal
-        val data: List<HeroEntity> = room.getHeroDao().getSuperheroes(query)
-        runOnUiThread{
-            adapter.updateList(data)
-            binding.progressBar.isVisible = false
+            val data: List<HeroEntity> = room.getHeroDao().getSuperheroes(query)
+            runOnUiThread{
+                adapter.updateList(data)
+                binding.progressBar.isVisible = false
 
-        }
+            }
         }
     }
     private fun fillDatabase() {
@@ -92,13 +92,13 @@ class HeroActivity : AppCompatActivity() {
                     if(room.getHeroDao().getAllSuperheroes().isNotEmpty()) {
                         //si no está vacía busca actualizar los heroes
                         for (s in list) {
-                            val roomHero = room.getHeroDao().getSuperheroes(s.idApi)
+                            val roomHero = room.getHeroDao().getSuperheroeByApiID(s.idApi)
                             if(roomHero.isNotEmpty()){
                                 if (roomHero[0].idApi == s.idApi) {
                                     room.getHeroDao().update(s)
-                                } else {
-                                    room.getHeroDao().insert(s)
                                 }
+                            }else{
+                                room.getHeroDao().insert(s)
                             }
                         }
                     }else {
@@ -124,7 +124,7 @@ class HeroActivity : AppCompatActivity() {
     }
     private fun getRoom(): SHDB{
         return Room
-            .databaseBuilder(this, SHDB::class.java, "SuperheroesBD")
+            .databaseBuilder(this, SHDB::class.java, "BDSuperHeroes")
             .build()
     }
 }

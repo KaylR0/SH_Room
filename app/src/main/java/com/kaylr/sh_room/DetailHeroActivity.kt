@@ -52,13 +52,9 @@ class DetailHeroActivity : AppCompatActivity() {
                             if (roomDetail.isNotEmpty()) {
                                 if (roomDetail[0].id == id) {
                                     room.getDetailsDao().update(s)
-                                    //room.getDetailsDao().deleteAllDetails()
-                                    //room.getDetailsDao().insertAll(list)
-                                    //room.getDetailsDao().update(list)
-                                    //val list = room.getDetailsDao().getDetails(id)
-                                } else {
-                                    room.getDetailsDao().insert(s)
                                 }
+                            }else{
+                                room.getDetailsDao().insert(s)
                             }
                         }
                     }else {
@@ -67,10 +63,8 @@ class DetailHeroActivity : AppCompatActivity() {
                     }
                     val listDetails = room.getDetailsDao().getAllDetails()
                     runOnUiThread {
-                        //ARREGLAR PARA QUE MUESTRE DETALLES DEL HEROE SELECCIONADO
                         createUI(listDetails, id)
                     }
-                    //se pone !! cuando estamos seguros de que es nulo
                 }
             }
         }
@@ -79,22 +73,16 @@ class DetailHeroActivity : AppCompatActivity() {
     private fun createUI(listDetails: List<DetailsEntity>, idHero: Int){
         CoroutineScope(Dispatchers.IO).launch {
         for (i in listDetails.listIterator()){
-            println(i.id)
-            println("--")
-            println(idHero)
+            println("${i.id}--${idHero}")
+
             if (i.id == idHero){
-                println(idHero)
-                println(i.fullName)
-                //CoroutineScope(Dispatchers.Main).launch {
-                    val image = Picasso.get().load(room.getDetailsDao().getHeroImage(i.id))
+                println("${idHero}--${i.fullName}")
+
+                val image = Picasso.get().load(room.getDetailsDao().getHeroImage(i.id))
                 CoroutineScope(Dispatchers.Main).launch {
                     image.into(binding.ivSuperhero)
                 }
-                //}
-             /*   val he: HeroEntity = room.getHeroDao().getSuperheroes(i.id)
-                CoroutineScope(Dispatchers.Main).launch {
-                    Picasso.get().load(he.image).into(binding.ivSuperhero)
-                }*/
+
                 binding.tvSuperheroName.text = room.getDetailsDao().getHeroName(i.id)
                 binding.tvSuperheroRealName.text = i.fullName
                 binding.tvPublisher.text = i.publisher
@@ -135,7 +123,7 @@ class DetailHeroActivity : AppCompatActivity() {
     }
     private fun getRoom(): SHDB{
         return Room
-            .databaseBuilder(this, SHDB::class.java, "SuperheroesBD")
+            .databaseBuilder(this, SHDB::class.java, "BDSuperHeroes")
             .build()
     }
 }
